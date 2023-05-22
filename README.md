@@ -84,7 +84,7 @@ python run_net.py --mode train --cfg configs/resnet/r-56_c100.yaml
 **Step 2:** train the target VT.
 
 ```shell
-python run_net.py --mode train --cfg configs/deit/deit-ti_c100_ours.yaml
+python run_net.py --mode train --cfg configs/deit/deit-ti_c100_ours.yaml NUM_GPUS 2 TRAIN.MIXED_PRECISION True
 ```
 
 As mentioned in the supplementary materials, the locality guidance can be executed offline using the per-computed features. To run in this setting, you can use:

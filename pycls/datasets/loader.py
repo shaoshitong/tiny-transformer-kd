@@ -18,24 +18,28 @@ from pycls.datasets.cifar100 import Cifar100
 from pycls.datasets.flowers import Flowers
 from pycls.datasets.chaoyang import Chaoyang
 from pycls.datasets.tiny_imagenet import TinyImageNet
+from core_of_jda_and_ccd import PolicyDatasetC10,PolicyDatasetC100,RADatasetC100,AADatasetC100
 from torch.utils.data.distributed import DistributedSampler
 from torch.utils.data.sampler import RandomSampler
 
 
 _DATASETS = {'cifar100': Cifar100, 'flowers': Flowers, "chaoyang": Chaoyang, "tiny_imagenet": TinyImageNet}
 
-_DATA_DIR = os.path.join('.', "data")
+_DATA_DIR = "/home/sst/dataset"
 if not os.path.exists(_DATA_DIR):
     os.makedirs(_DATA_DIR)
 
-_PATHS = {"cifar100": "", 'flowers': "flowers", "chaoyang": "chaoyang", "tiny_imagenet": "tiny-imagenet-200"}
+_PATHS = {"cifar100": "c100", 'flowers': "flowers", "chaoyang": "chaoyang", "tiny_imagenet": "tiny-imagenet-200"}
 
 
-def _construct_loader(dataset_name, split, batch_size, shuffle, drop_last):
+def _construct_loader(dataset_name, split, batch_size, shuffle, drop_last,appling_jda=False):
     err_str = "Dataset '{}' not supported".format(dataset_name)
     assert dataset_name in _DATASETS and dataset_name in _PATHS, err_str
     data_path = os.path.join(_DATA_DIR, _PATHS[dataset_name])
     dataset = _DATASETS[dataset_name](data_path, split)
+    if split == "train" and appling_jda:
+        print("Setting JDA for training!")
+        dataset = PolicyDatasetC100(dataset)
     sampler = DistributedSampler(dataset) if cfg.NUM_GPUS > 1 else None
     loader = torch.utils.data.DataLoader(
         dataset,
@@ -56,6 +60,7 @@ def construct_train_loader():
         batch_size=int(cfg.TRAIN.BATCH_SIZE / cfg.NUM_GPUS),
         shuffle=True,
         drop_last=True,
+        appling_jda=cfg.TRAIN.JDA
     )
 
 

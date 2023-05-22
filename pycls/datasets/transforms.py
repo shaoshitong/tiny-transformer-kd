@@ -57,6 +57,7 @@ def create_train_transform(mean=None, std=None):
         color_jitter=0.4,
         auto_augment='rand-m9-mstd0.5-inc1',
         re_prob=0.25,
+        no_aug=cfg.TRAIN.NO_AUG,
         re_mode='pixel',
         re_count=1,
         interpolation='bicubic',

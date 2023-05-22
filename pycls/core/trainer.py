@@ -14,6 +14,7 @@ import os
 import random
 import warnings
 
+import einops
 import numpy as np
 import pycls.core.benchmark as benchmark
 import pycls.core.builders as builders
@@ -90,6 +91,9 @@ def train_epoch(loader, model, ema, loss_fun, optimizer, scheduler, scaler, mete
     meter.iter_tic()
     for cur_iter, (inputs, labels, offline_features) in enumerate(loader):
         inputs, labels = inputs.cuda(), labels.cuda(non_blocking=True)
+        if inputs.ndim==5:
+            inputs = einops.rearrange(inputs,"b n c h w -> (b n) c h w")
+            labels = einops.rearrange(labels,"b n c -> (b n c)")
         offline_features = [f.cuda() for f in offline_features]
         labels_one_hot = net.smooth_one_hot_labels(labels)
         inputs, labels_one_hot, labels = net.mixup(inputs, labels_one_hot)

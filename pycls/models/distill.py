@@ -35,9 +35,9 @@ def logit_distill_loss(logits_t, logits_s, loss_type, temperature):
         distillation_loss = F.kl_div(
             F.log_softmax(logits_s / temperature, dim=1),
             F.log_softmax(logits_t / temperature, dim=1),
-            reduction='sum',
+            reduction='batchmean',
             log_target=True
-        ) * (temperature * temperature) / logits_s.numel()
+        ) * (temperature * temperature)
     elif loss_type == "hard":
         distillation_loss = F.cross_entropy(logits_s, logits_t.argmax(dim=1))
     else:

@@ -189,7 +189,8 @@ _C.TRAIN = CfgNode()
 # Dataset and split
 _C.TRAIN.DATASET = ""
 _C.TRAIN.SPLIT = "train"
-
+_C.TRAIN.JDA= False
+_C.TRAIN.NO_AUG = False
 # Total mini-batch size
 _C.TRAIN.BATCH_SIZE = 128
 
@@ -292,7 +293,7 @@ _C.NUM_GPUS = 1
 _C.MAX_GPUS_PER_NODE = 8
 
 # Output directory
-_C.OUT_DIR = None
+_C.OUT_DIR = "/data/tiny-transformers-ckpt/work_dirs/deit-ti_c100_ours"
 
 # Config destination (in OUT_DIR)
 _C.CFG_DEST = "config.yaml"
