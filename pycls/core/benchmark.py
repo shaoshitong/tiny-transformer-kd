@@ -37,6 +37,7 @@ def compute_time_eval(model):
         model(inputs)
         torch.cuda.synchronize()
         timer.toc()
+    print("===========================Yes==========================")
     return timer.average_time
 
 
@@ -66,9 +67,11 @@ def compute_time_train(model, loss_fun):
         with amp.autocast(enabled=cfg.TRAIN.MIXED_PRECISION):
             preds = model(inputs)
             loss_cls = loss_fun(preds, labels_one_hot)
+            # if cfg.DISTILLATION.ENABLE_LOGIT:
+            #     loss_cls += loss_fun(net.unwrap_model(model).student_model.distill_logits,labels_one_hot)
             loss, loss_inter, loss_logit = loss_cls, inputs.new_tensor(0.0), inputs.new_tensor(0.0)
             if hasattr(net.unwrap_model(model), 'guidance_loss'):
-                loss_inter, loss_logit = net.unwrap_model(model).guidance_loss(inputs, offline_features)
+                loss_inter, loss_logit = net.unwrap_model(model).guidance_loss(inputs, offline_features,preds)
                 if cfg.DISTILLATION.ENABLE_LOGIT:
                     loss_cls = loss_cls * (1 - cfg.DISTILLATION.LOGIT_WEIGHT)
                     loss_logit = loss_logit * cfg.DISTILLATION.LOGIT_WEIGHT
@@ -81,6 +84,7 @@ def compute_time_train(model, loss_fun):
         bw_timer.tic()
         scaler.scale(loss).backward()
         torch.cuda.synchronize()
+
         bw_timer.toc()
     for bn, (mean, var) in zip(bns, bn_stats):
         bn.running_mean, bn.running_var = mean, var

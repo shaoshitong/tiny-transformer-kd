@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 from pycls.core.config import cfg
 import pycls.core.logging as logging
-
+from core_of_jda_and_ccd import CCDLoss
 
 logger = logging.get_logger(__name__)
 
@@ -46,6 +46,7 @@ def logit_distill_loss(logits_t, logits_s, loss_type, temperature):
     return distillation_loss
 
 
+
 class DistillationWrapper(nn.Module):
 
     def __init__(self, student_model, teacher_mode):
@@ -58,6 +59,9 @@ class DistillationWrapper(nn.Module):
         self.logit_loss_type = cfg.DISTILLATION.LOGIT_LOSS
         self.teacher_img_size = cfg.DISTILLATION.TEACHER_IMG_SIZE
         self.offline = cfg.DISTILLATION.OFFLINE
+        self.apply_ccd = cfg.DISTILLATION.CCD
+        if self.apply_ccd:
+            self.CCD = CCDLoss(4, alpha=1, beta=1, p=0.5,reduction='batchmean',apply_norm=cfg.DISTILLATION.NORM)
         assert not self.offline or not self.enable_logit, 'Logit distillation is not supported when offline is enabled.'
 
         self.student_model = student_model
@@ -95,8 +99,8 @@ class DistillationWrapper(nn.Module):
         complexity["teacher"] = teacher_complexity
         return complexity
 
-    def guidance_loss(self, x, offline_feats):
-        logits_s = self.student_model.distill_logits
+    def guidance_loss(self, x, offline_feats,preds=None):
+        logits_s = preds
         feats_s = self.student_model.features
 
         if self.offline:
@@ -122,6 +126,9 @@ class DistillationWrapper(nn.Module):
                 feat_s = F.interpolate(feat_s, dsize, mode='bilinear', align_corners=False)
                 loss_inter = loss_inter + inter_distill_loss(feat_t, feat_s, self.inter_transform_type)
 
-        loss_logit = logit_distill_loss(logits_t, logits_s, self.logit_loss_type) if self.enable_logit else x.new_tensor(0.0)
+        if self.apply_ccd:
+            loss_logit = self.CCD(logits_s,logits_t.detach()) if self.enable_logit else x.new_tensor(0.0)
+        else:
+            loss_logit = logit_distill_loss(logits_t, logits_s, self.logit_loss_type,temperature=4) if self.enable_logit else x.new_tensor(0.0)
 
         return loss_inter, loss_logit

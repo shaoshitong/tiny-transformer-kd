@@ -31,12 +31,13 @@ _C.DISTILLATION.INTER_LOSS = "l2"
 _C.DISTILLATION.INTER_TEACHER_INDEX = []
 _C.DISTILLATION.INTER_STUDENT_INDEX = []
 _C.DISTILLATION.INTER_WEIGHT = 2.5
-
+_C.DISTILLATION.NORM = False
 # Logits distillation options
-_C.DISTILLATION.ENABLE_LOGIT = False
+_C.DISTILLATION.ENABLE_LOGIT = True # CCD
+_C.DISTILLATION.CCD = True # CCD
 _C.DISTILLATION.LOGIT_LOSS = "soft"
 _C.DISTILLATION.LOGIT_TEMP = 1.0
-_C.DISTILLATION.LOGIT_WEIGHT = 0.5
+_C.DISTILLATION.LOGIT_WEIGHT = 5.0
 
 # Teacher model
 _C.DISTILLATION.TEACHER_MODEL = "ResNet"
@@ -293,8 +294,7 @@ _C.NUM_GPUS = 1
 _C.MAX_GPUS_PER_NODE = 8
 
 # Output directory
-_C.OUT_DIR = "/data/tiny-transformers-ckpt/work_dirs/deit-ti_c100_ours"
-
+_C.OUT_DIR = "/data/tiny-transformers-ckpt/work_dirs/deit-ti_c100_ours_5.0"
 # Config destination (in OUT_DIR)
 _C.CFG_DEST = "config.yaml"
 

@@ -230,6 +230,7 @@ class PolicyDatasetC100(BaseDatasetWrapper):
         for i in range(self.policies_len):
             new_sample, label = self.policies[i](new_sample)
             policy_index[i] = label
+        sample = self.secondary_tfl(sample)
         new_sample = self.final_tfl(new_sample).detach()
         sample = self.final_tfl(sample).detach()
         if isinstance(target, torch.Tensor) and target.ndim == 2 and target.shape[-1] != 1:

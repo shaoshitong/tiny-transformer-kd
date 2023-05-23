@@ -36,7 +36,7 @@ TRAIN:
   DATASET: cifar100
   SPLIT: train
   BATCH_SIZE: 128
-  JDA: False # JDA
+  JDA: True # JDA
   NO_AUG: False # JDA
 TEST:
   DATASET: cifar100

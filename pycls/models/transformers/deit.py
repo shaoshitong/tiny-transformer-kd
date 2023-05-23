@@ -25,7 +25,7 @@ class DeiT(BaseTransformerModel):
 
         self.patch_embed = PatchEmbedding(img_size=self.img_size, patch_size=self.patch_size, in_channels=self.in_channels, out_channels=self.hidden_dim)
         self.num_patches = self.patch_embed.num_patches
-        self.num_tokens = 1 + cfg.DISTILLATION.ENABLE_LOGIT
+        self.num_tokens = 1 #+ cfg.DISTILLATION.ENABLE_LOGIT
         self.pos_embed = nn.Parameter(torch.zeros(1, self.num_patches + self.num_tokens, self.hidden_dim))
         self.pe_dropout = nn.Dropout(p=self.drop_rate)
 
@@ -53,12 +53,12 @@ class DeiT(BaseTransformerModel):
 
         self.distill_token = None
         self.distill_head = None
-        if cfg.DISTILLATION.ENABLE_LOGIT:
-            self.distill_token = nn.Parameter(torch.zeros(1, 1, self.hidden_dim))
-            self.distill_head = nn.Linear(self.hidden_dim, self.num_classes)
-            nn.init.zeros_(self.distill_head.weight)
-            nn.init.constant_(self.distill_head.bias, 0)
-            trunc_normal_(self.distill_token, std=.02)
+        # if cfg.DISTILLATION.ENABLE_LOGIT:
+        #     self.distill_token = nn.Parameter(torch.zeros(1, 1, self.hidden_dim))
+        #     self.distill_head = nn.Linear(self.hidden_dim, self.num_classes)
+        #     nn.init.zeros_(self.distill_head.weight)
+        #     nn.init.constant_(self.distill_head.bias, 0)
+        #     trunc_normal_(self.distill_token, std=.02)
 
     def _feature_hook(self, module, inputs, outputs):
         feat_size = int(self.num_patches ** 0.5)
@@ -88,14 +88,12 @@ class DeiT(BaseTransformerModel):
 
         x = self.norm(x)
         logits = self.head(x[:, 0])
-
         if self.num_tokens == 1:
             return logits
+        #
+        # if cfg.DISTILLATION.ENABLE_LOGIT:
+        #     self.distill_logits = self.distill_head(x[:, 1])
+        # else:
+        #     self.distill_logits = None
 
-        self.distill_logits = None
-        self.distill_logits = self.distill_head(x[:, 1])
-
-        if self.training:
-            return logits
-        else:
-            return (logits + self.distill_logits) / 2
+        return logits

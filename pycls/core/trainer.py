@@ -30,6 +30,7 @@ import torch
 import torch.cuda.amp as amp
 from pycls.core.config import cfg
 from pycls.core.io import cache_url, pathmgr
+from core_of_jda_and_ccd import CCDLoss
 
 
 logger = logging.get_logger(__name__)
@@ -102,9 +103,8 @@ def train_epoch(loader, model, ema, loss_fun, optimizer, scheduler, scaler, mete
             loss_cls = loss_fun(preds, labels_one_hot)
             loss, loss_inter, loss_logit = loss_cls, inputs.new_tensor(0.0), inputs.new_tensor(0.0)
             if hasattr(net.unwrap_model(model), 'guidance_loss'):
-                loss_inter, loss_logit = net.unwrap_model(model).guidance_loss(inputs, offline_features)
+                loss_inter, loss_logit = net.unwrap_model(model).guidance_loss(inputs, offline_features, preds)
                 if cfg.DISTILLATION.ENABLE_LOGIT:
-                    loss_cls = loss_cls * (1 - cfg.DISTILLATION.LOGIT_WEIGHT)
                     loss_logit = loss_logit * cfg.DISTILLATION.LOGIT_WEIGHT
                     loss = loss_cls + loss_logit
                 if cfg.DISTILLATION.ENABLE_INTER:
@@ -170,10 +170,12 @@ def train_model():
     ema_meter = meters.TestMeter(len(test_loader), "test_ema")
     scaler = amp.GradScaler(enabled=cfg.TRAIN.MIXED_PRECISION)
     if start_epoch == 0 and cfg.PREC_TIME.NUM_ITER > 0:
+        optimizer.zero_grad()
         benchmark.compute_time_full(model, loss_fun, train_loader, test_loader)
     logger.info("Start epoch: {}".format(start_epoch + 1))
     for cur_epoch in range(start_epoch, cfg.OPTIM.MAX_EPOCH):
         params = (train_loader, model, ema, loss_fun, optimizer, scheduler, scaler, train_meter)
+        optimizer.zero_grad()
         train_epoch(*params, cur_epoch)
         test_epoch(test_loader, model, test_meter, cur_epoch)
         test_err = test_meter.get_epoch_stats(cur_epoch)["top1_err"]
