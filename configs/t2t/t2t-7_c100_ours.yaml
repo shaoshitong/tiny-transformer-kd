@@ -26,7 +26,7 @@ DISTILLATION:
   INTER_STUDENT_INDEX: [0, 3, 6]
   INTER_WEIGHT: 2.5
   TEACHER_MODEL: ResNet
-  TEACHER_WEIGHTS: work_dirs/r-56_c100/model.pyth
+  TEACHER_WEIGHTS: /data/tiny-transformers-ckpt/work_dirs/r-56_c100/model.pyth
   TEACHER_IMG_SIZE: 32
 OPTIM:
   OPTIMIZER: adamw
@@ -41,6 +41,8 @@ TRAIN:
   DATASET: cifar100
   SPLIT: train
   BATCH_SIZE: 128
+  JDA: False
+  NO_AUG: False
 TEST:
   DATASET: cifar100
   SPLIT: test

@@ -49,7 +49,7 @@ class RandomHorizontalFlip(transforms.RandomHorizontalFlip):
 def create_train_transform(mean=None, std=None):
     mean = IMAGENET_DEFAULT_MEAN if mean is None else mean
     std = IMAGENET_DEFAULT_STD if std is None else std
-
+    print(cfg.TRAIN.NO_AUG)
     size = (cfg.MODEL.IMG_SIZE, cfg.MODEL.IMG_SIZE)
     transform = create_transform(
         input_size=size,
@@ -57,7 +57,7 @@ def create_train_transform(mean=None, std=None):
         color_jitter=0.4,
         auto_augment='rand-m9-mstd0.5-inc1',
         re_prob=0.25,
-        no_aug=cfg.TRAIN.NO_AUG,
+        no_aug=False,
         re_mode='pixel',
         re_count=1,
         interpolation='bicubic',

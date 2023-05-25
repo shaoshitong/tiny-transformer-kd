@@ -15,6 +15,10 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
     def __init__(self, split):
         if split == 'train':
             transforms = create_train_transform()
+            if cfg.TRAIN.NO_AUG:
+                from torchvision import transforms as ts
+                size = (cfg.MODEL.IMG_SIZE, cfg.MODEL.IMG_SIZE)
+                transforms = (ts.Resize(size),lambda x:x,transforms[-1])
         else:
             transforms = create_test_transform()
         self.primary_tfl, self.secondary_tfl, self.final_tfl = transforms

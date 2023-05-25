@@ -33,8 +33,8 @@ _C.DISTILLATION.INTER_STUDENT_INDEX = []
 _C.DISTILLATION.INTER_WEIGHT = 2.5
 _C.DISTILLATION.NORM = False
 # Logits distillation options
-_C.DISTILLATION.ENABLE_LOGIT = True # CCD
-_C.DISTILLATION.CCD = True # CCD
+_C.DISTILLATION.ENABLE_LOGIT = False # CCD
+_C.DISTILLATION.CCD = False # CCD
 _C.DISTILLATION.LOGIT_LOSS = "soft"
 _C.DISTILLATION.LOGIT_TEMP = 1.0
 _C.DISTILLATION.LOGIT_WEIGHT = 5.0
@@ -191,7 +191,7 @@ _C.TRAIN = CfgNode()
 _C.TRAIN.DATASET = ""
 _C.TRAIN.SPLIT = "train"
 _C.TRAIN.JDA= False
-_C.TRAIN.NO_AUG = False
+_C.TRAIN.NO_AUG = True
 # Total mini-batch size
 _C.TRAIN.BATCH_SIZE = 128
 
@@ -294,7 +294,7 @@ _C.NUM_GPUS = 1
 _C.MAX_GPUS_PER_NODE = 8
 
 # Output directory
-_C.OUT_DIR = "/data/tiny-transformers-ckpt/work_dirs/deit-ti_c100_ours_5.0"
+_C.OUT_DIR = "/data/tiny-transformers-ckpt/work_dirs/t2t_c100_ours"
 # Config destination (in OUT_DIR)
 _C.CFG_DEST = "config.yaml"
 
